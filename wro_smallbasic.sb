@@ -1,0 +1,154 @@
+Sensor.SetMode(2,0)
+Sensor.SetMode(3,0)
+Sensor.SetMode(1,2)
+s1 =sensor.ReadRawValue(2,0)
+s2=sensor.ReadRawValue(3,0)
+kp=0.1
+speed=40
+son=s1+s2
+x=0
+y=0
+'s3=sensor.SetMode(1,2)
+porog = 35
+
+sub pdreg
+s1 =sensor.ReadRawValue(2,0)
+s2=sensor.ReadRawValue(3,0)
+delta=s1-s2
+u=kp*delta
+Motor.Start("B",speed+u)
+Motor.Start("C",speed-u)
+EndSub
+
+cm = 0
+Sub encline
+  Motor.ResetCount("B")
+  While Motor.GetCount("B")<cm
+    pdreg()
+  EndWhile
+  EndSub
+
+Sub tocros
+s1 =sensor.ReadRawValue(2,0)
+s2=sensor.ReadRawValue(3,0)
+While (s1+s2)>porog
+  pdreg()  
+EndWhile
+Speaker.Tone(100,200,500)
+cm = 130
+
+encline()
+Speaker.Tone(100,800,500)
+Motor.Stop("BC","true")
+Program.Delay(1000)
+EndSub
+
+
+Sub pravo
+  motor.MoveSync("BC",40,-40,200,"true")
+EndSub
+
+Sub levo 
+  motor.MoveSync("BC",-40,40,200,"true")
+  EndSub
+  x=0
+  y=0
+  x2 = 0
+  y2 = 0
+  xd=x-x2
+  yd=y-y2
+  
+Sub koor
+  For i=1 To y
+    tocros()
+    
+  EndFor
+  pravo()
+  For i=1 To x
+  tocros()
+EndFor
+
+If y>y2 Then 
+ 
+ pravo()
+ For i=1 To yd 
+    tocros()
+  EndFor
+ 
+EndIf
+If y2 > y Then
+yd = yd *(-1)
+  For i=1 To yd 
+    tocros()
+  EndFor
+EndIf
+
+
+  For i=1 To yd
+    tocros()
+  EndFor
+  If x>x2 Then 
+    levo()
+  EndIf
+  
+  
+  If x2 > x Then
+ xd = xd *(-1)
+  For i=1 To xd 
+    tocros()
+  EndFor
+EndIf
+
+
+  For i =1 To xd
+    tocros()
+  EndFor
+  
+EndSub
+
+Sub yx
+  For i=1 To y
+
+    tocros()
+
+  EndFor
+  pravo()
+  For i=1 To x
+
+    tocros()
+
+EndFor
+EndSub
+
+
+Sub xy
+  For i=1 To y
+
+    tocros()
+
+  EndFor
+  levo()
+  For i=1 To x
+
+    tocros()
+
+EndFor
+EndSub
+b=0
+yl=0
+Sub scan
+  Motor.Stop("BC","True")
+     blue=Sensor.ReadRawValue(1,0)
+yellow=Sensor.ReadRawValue(1,0)
+  LCD.Clear()
+    LCD.Text(1,10,20,2,blue)
+    Program.Delay(1000)
+    b=Sensor.ReadRawValue(1,0)
+    yl=Sensor.ReadRawValue(1,0)
+  EndSub 
+ 
+  y=2
+  x=1
+  xy()
+  scan()
+  
